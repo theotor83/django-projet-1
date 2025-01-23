@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Task Manager TEST : "{{test}}"</h1>
+        <h1>Task Manager</h1>
         <div class="input-container">
             <form method="POST" action="/">
                 {% csrf_token %}
@@ -28,42 +28,28 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td style="text-align: center; vertical-align: middle;">Complete project proposal</td>
-                    <td style="text-align: center; vertical-align: middle;">2025-01-15</td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <input type="checkbox">
-                    </td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <button class="delete-btn">Delete</button><br>
-                        <form method="POST" action="index">
-                            {% csrf_token %}
-                            <button class="complete-btn" type = "submit" name="bouton">Complete</button>
-                        </form>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="text-align: center; vertical-align: middle;">Review code changes</td>
-                    <td style="text-align: center; vertical-align: middle;">2025-01-18</td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <input type="checkbox">
-                    </td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <button class="delete-btn">Delete</button><br>
-                        <button class="uncomplete-btn">Uncomplete</button>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="text-align: center; vertical-align: middle;">Update documentation</td>
-                    <td style="text-align: center; vertical-align: middle;">2025-01-19</td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <input type="checkbox">
-                    </td>
-                    <td style="text-align: center; vertical-align: middle;">
-                        <button class="delete-btn">Delete</button><br>
-                        <button class="complete-btn">Complete</button>
-                    </td>
-                </tr>
+                {% for entry in entries %}
+                    <tr>
+                        <td style="text-align: center; vertical-align: middle;">{{entry.name}}</td>
+                        <td style="text-align: center; vertical-align: middle;">{{entry.dateCreated}}</td>
+                        {% if entry.completed == True %}
+                            <td style="text-align: center; vertical-align: middle;">
+                                <input type="checkbox" disabled checked>
+                            </td>
+                        {% else %}
+                            <td style="text-align: center; vertical-align: middle;">
+                                <input type="checkbox" disabled>
+                            </td>
+                        {% endif %}
+                        <td style="text-align: center; vertical-align: middle;">
+                            <button class="delete-btn">Delete</button><br>
+                            <form method="POST" action="index">
+                                {% csrf_token %}
+                                <button class="complete-btn" type = "submit" name="bouton">Complete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>

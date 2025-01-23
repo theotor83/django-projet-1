@@ -7,10 +7,11 @@ from .models import TodoEntry
 def index(request):
     if request.method == 'POST':
         entryName = request.POST.get('newEntry')
-        newEntry = TodoEntry
+        newEntry = TodoEntry()
         newEntry.name = entryName
         newEntry.save()
-        return render(request, 'index.html',{'test': entry})
+        entries = TodoEntry.objects.all()
+        return render(request, 'index.html',{'entries': entries})
     else:
         return render(request, 'index.html')
 
