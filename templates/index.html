@@ -42,10 +42,11 @@
                             </td>
                         {% endif %}
                         <td style="text-align: center; vertical-align: middle;">
-                            <button class="delete-btn">Delete</button><br>
-                            <form method="POST" action="index">
+                            <a href="{% url 'delete-entry' entry.id %}">Delete</a><br>
+
+                            <form method="POST" action="/">
                                 {% csrf_token %}
-                                <button class="complete-btn" type = "submit" name="bouton">Complete</button>
+                                <button class="complete-btn" type = "submit" name="complete-button">Complete</button>
                             </form>
                         </td>
                     </tr>

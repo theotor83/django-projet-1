@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import TodoEntry
 
 
@@ -10,20 +10,13 @@ def index(request):
         newEntry = TodoEntry()
         newEntry.name = entryName
         newEntry.save()
-        entries = TodoEntry.objects.all()
-        return render(request, 'index.html',{'entries': entries})
+        return redirect('/') 
     else:
-        return render(request, 'index.html')
+        entries = TodoEntry.objects.all()
+        return render(request, 'index.html', {'entries': entries})
 
-def print(request):
-    caca = request.POST['pseudo']
-    return render(request, 'print.html',{'caca': caca})
-
-def utf(request):
-    return render(request, 'index_utf.html')
-
-def test(request):
-    if request.method == 'POST':
-        test = request.POST.get('bouton')
-        return render(request, 'test.html', {'test': test})
-    return render(request, 'test.html')
+def delete_entry(request, id):
+    entry = get_object_or_404(TodoEntry, pk=id)
+    entry.delete()
+    entries = TodoEntry.objects.all()
+    return redirect('/')
