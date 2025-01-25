@@ -46,7 +46,11 @@
 
                             <form method="POST" action="/">
                                 {% csrf_token %}
-                                <button class="complete-btn" type = "submit" name="complete-button">Complete</button>
+                                {% if entry.completed == False %}
+                                    <a href="{% url 'edit-entry' entry.id %}">Complete</a>
+                                {% else %}
+                                    <a href="{% url 'edit-entry' entry.id %}">Uncomplete</a>
+                                {% endif %}
                             </form>
                         </td>
                     </tr>

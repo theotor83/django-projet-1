@@ -18,5 +18,13 @@ def index(request):
 def delete_entry(request, id):
     entry = get_object_or_404(TodoEntry, pk=id)
     entry.delete()
-    entries = TodoEntry.objects.all()
+    return redirect('/')
+
+def edit_entry(request, id):
+    entry = get_object_or_404(TodoEntry, pk=id)
+    if entry.completed == True:
+        entry.completed = False
+    elif entry.completed == False:
+        entry.completed = True
+    entry.save()
     return redirect('/')
