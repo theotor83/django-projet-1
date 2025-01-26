@@ -42,14 +42,14 @@
                             </td>
                         {% endif %}
                         <td style="text-align: center; vertical-align: middle;">
-                            <a href="{% url 'delete-entry' entry.id %}">Delete</a><br>
+                            <a href="{% url 'delete-entry' entry.id %}" class="button-style" style="color: white; background-color: darkred; font-weight: bold;" >Delete</a><br>
 
                             <form method="POST" action="/">
                                 {% csrf_token %}
                                 {% if entry.completed == False %}
-                                    <a href="{% url 'edit-entry' entry.id %}">Complete</a>
+                                    <a href="{% url 'edit-entry' entry.id %}" class="button-style" style="color: white; background-color: green; font-weight: bold;">Complete</a>
                                 {% else %}
-                                    <a href="{% url 'edit-entry' entry.id %}">Uncomplete</a>
+                                    <a href="{% url 'edit-entry' entry.id %}" class="button-style" style="color: white; background-color: red; font-weight: bold;">Uncomplete</a>
                                 {% endif %}
                             </form>
                         </td>
