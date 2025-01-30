@@ -1,3 +1,4 @@
+from django.urls import include, path
 """
 URL configuration for projet1 project.
 
@@ -23,5 +24,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('delete/<int:id>', views.delete_entry, name='delete-entry'),
     path('edit/<int:id>', views.edit_entry, name='edit-entry'),
-    path('register/', views.register, name='register'),
+    path('register/', views.register, name='register' ),
 ]
