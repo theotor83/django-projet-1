@@ -6,5 +6,5 @@ from django.utils import timezone
 
 class TodoEntry(models.Model):
     name = models.CharField(max_length=100)
-    dateCreated = models.DateTimeField(default=timezone.localtime(timezone.now()))
+    dateCreated = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
