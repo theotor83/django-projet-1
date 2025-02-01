@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from .models import TodoEntry
 
 
@@ -53,3 +53,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request,"login.html", {"form" : form})
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")
