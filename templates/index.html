@@ -7,15 +7,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Manager</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        /* Navbar styling */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px; /* Space between buttons */
+        }
+
+        .button-style {
+            padding: 8px 16px;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 4px;
+            color: white;
+        }
+
+        /* Specific button colors */
+        .register-button {
+            background-color: green;
+        }
+
+        .login-button {
+            background-color: blue;
+        }
+
+        .logout-button {
+            background-color: darkred;
+        }
+    </style>
 </head>
 <body>
+    <!-- Navbar -->
+    <nav>
+        <div class="navbar">
+            <h1>Task Manager</h1>
+            <div class="nav-buttons">
+                {% if user.is_authenticated %}
+                    <!-- Show Logout button if user is logged in -->
+                    <a href="{% url 'logout' %}" class="button-style logout-button">Logout</a>
+                {% else %}
+                    <!-- Show Register and Login buttons if user is not logged in -->
+                    <a href="{% url 'register' %}" class="button-style register-button">Register</a>
+                    <a href="{% url 'login' %}" class="button-style login-button">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <h1>Task Manager</h1>
         <div class="input-container">
             <form method="POST" action="/">
                 {% csrf_token %}
                 <textarea name="newEntry" placeholder="Enter new task"></textarea>
-                <input type = "submit"/>
+                <input type="submit"/>
             </form>
         </div>
         <table>
