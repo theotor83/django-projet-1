@@ -2,114 +2,119 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Manager</title>
-    <link rel="stylesheet" href="{% static 'styles.css' %}">
-    <style>
-        /* Navbar styling */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #ddd;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Task Manager</title>
+        <link rel="stylesheet" href="{% static 'styles.css' %}">
+        <style>
+            /* Navbar styling */
+            .navbar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 20px;
+                background-color: #f8f9fa;
+                border-bottom: 1px solid #ddd;
+            }
 
-        .nav-buttons {
-            display: flex;
-            gap: 10px; /* Space between buttons */
-        }
+            .nav-buttons {
+                display: flex;
+                gap: 10px; /* Space between buttons */
+            }
 
-        .button-style {
-            padding: 8px 16px;
-            text-decoration: none;
-            font-weight: bold;
-            border-radius: 4px;
-            color: white;
-        }
+            .button-style {
+                padding: 8px 16px;
+                text-decoration: none;
+                font-weight: bold;
+                border-radius: 4px;
+                color: white;
+            }
 
-        /* Specific button colors */
-        .register-button {
-            background-color: green;
-        }
+            /* Specific button colors */
+            .register-button {
+                background-color: green;
+            }
 
-        .login-button {
-            background-color: blue;
-        }
+            .login-button {
+                background-color: blue;
+            }
 
-        .logout-button {
-            background-color: darkred;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navbar -->
-    <nav>
-        <div class="navbar">
-            <h1>Task Manager</h1>
-            <div class="nav-buttons">
-                {% if user.is_authenticated %}
-                    <!-- Show Logout button if user is logged in -->
-                    <a href="{% url 'logout' %}" class="button-style logout-button">Logout</a>
-                {% else %}
-                    <!-- Show Register and Login buttons if user is not logged in -->
-                    <a href="{% url 'register' %}" class="button-style register-button">Register</a>
-                    <a href="{% url 'login' %}" class="button-style login-button">Login</a>
-                {% endif %}
+            .logout-button {
+                background-color: darkred;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Navbar -->
+        <nav>
+            <div class="navbar">
+                <h1>Task Manager</h1>
+                <div class="nav-buttons">
+                    {% if user.is_authenticated %}
+                        <!-- Show Logout button if user is logged in -->
+                        <a href="{% url 'logout' %}" class="button-style logout-button">Logout</a>
+                    {% else %}
+                        <!-- Show Register and Login buttons if user is not logged in -->
+                        <a href="{% url 'register' %}" class="button-style register-button">Register</a>
+                        <a href="{% url 'login' %}" class="button-style login-button">Login</a>
+                    {% endif %}
+                </div>
             </div>
+        </nav>
+        <div class="container">
+            {% if user.is_authenticated %}
+                <div class="input-container">
+                    <form method="POST" action="/">
+                        {% csrf_token %}
+                        <textarea name="newEntry" placeholder="Enter new task"></textarea>
+                        <input type="submit"/>
+                    </form>
+                </div>
+            {% else %}
+                <p>Please login to create new entries!</p>
+            {% endif %}
+            {% if entries %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Created Date</th>
+                            <th>Completed</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                            <tr>
+                                <td>{{ entry.name }}</td>
+                                <td>{{ entry.dateCreated }}</td>
+                                <td>
+                                    {% if entry.completed %}
+                                        <input type="checkbox" disabled checked>
+                                    {% else %}
+                                        <input type="checkbox" disabled>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'delete-entry' entry.id %}" class="button-style" style="color: white; background-color: darkred; font-weight: bold;">Delete</a>
+                                    <br>
+                                    <form method="POST" action="/">
+                                        {% csrf_token %}
+                                        {% if not entry.completed %}
+                                            <a href="{% url 'edit-entry' entry.id %}" class="button-style" style="color: white; background-color: green; font-weight: bold;">Complete</a>
+                                        {% else %}
+                                            <a href="{% url 'edit-entry' entry.id %}" class="button-style" style="color: white; background-color: red; font-weight: bold;">Uncomplete</a>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No tasks found. Add a new task!</p>
+            {% endif %}
         </div>
-    </nav>
-
-    <div class="container">
-        <div class="input-container">
-            <form method="POST" action="/">
-                {% csrf_token %}
-                <textarea name="newEntry" placeholder="Enter new task"></textarea>
-                <input type="submit"/>
-            </form>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th style="text-align: center; vertical-align: middle;">Name</th>
-                    <th style="text-align: center; vertical-align: middle;">Created Date</th>
-                    <th style="text-align: center; vertical-align: middle;">Completed</th>
-                    <th style="text-align: center; vertical-align: middle;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in entries %}
-                    <tr>
-                        <td style="text-align: center; vertical-align: middle;">{{entry.name}}</td>
-                        <td style="text-align: center; vertical-align: middle;">{{entry.dateCreated}}</td>
-                        {% if entry.completed == True %}
-                            <td style="text-align: center; vertical-align: middle;">
-                                <input type="checkbox" disabled checked>
-                            </td>
-                        {% else %}
-                            <td style="text-align: center; vertical-align: middle;">
-                                <input type="checkbox" disabled>
-                            </td>
-                        {% endif %}
-                        <td style="text-align: center; vertical-align: middle;">
-                            <a href="{% url 'delete-entry' entry.id %}" class="button-style" style="color: white; background-color: darkred; font-weight: bold;" >Delete</a><br>
-
-                            <form method="POST" action="/">
-                                {% csrf_token %}
-                                {% if entry.completed == False %}
-                                    <a href="{% url 'edit-entry' entry.id %}" class="button-style" style="color: white; background-color: green; font-weight: bold;">Complete</a>
-                                {% else %}
-                                    <a href="{% url 'edit-entry' entry.id %}" class="button-style" style="color: white; background-color: red; font-weight: bold;">Uncomplete</a>
-                                {% endif %}
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</body>
+    </body>
 </html>

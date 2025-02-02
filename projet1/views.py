@@ -11,18 +11,23 @@ from .models import TodoEntry
 def index(request):
     if request.method == 'POST':
         entryName = request.POST.get('newEntry')
-        newEntry = TodoEntry()
-        newEntry.name = entryName
-        newEntry.save()
-        return redirect('/') 
-    else:
-        entries = TodoEntry.objects.all()
-        return render(request, 'index.html', {'entries': entries})
+        if request.user.is_authenticated:
+            newEntry = TodoEntry(user=request.user, name=entryName)
+            newEntry.save()
+        else:
+            messages.error(request, "You must be logged in to add tasks.")
+    
+    entries = TodoEntry.objects.filter(user=request.user) if request.user.is_authenticated else []
+    return render(request, 'index.html', {'entries': entries})
 
 def delete_entry(request, id):
     entry = get_object_or_404(TodoEntry, pk=id)
     entry.delete()
-    return redirect('/')
+    if request.user.is_authenticated:
+        entries = TodoEntry.objects.filter(user=request.user)
+    else:
+        entries = 0
+    return render(request, 'index.html', {'entries': entries})
 
 def edit_entry(request, id):
     entry = get_object_or_404(TodoEntry, pk=id)
@@ -31,14 +36,22 @@ def edit_entry(request, id):
     elif entry.completed == False:
         entry.completed = True
     entry.save()
-    return redirect('/')
+    if request.user.is_authenticated:
+        entries = TodoEntry.objects.filter(user=request.user)
+    else:
+        entries = 0
+    return render(request, 'index.html', {'entries': entries})
 
 def register_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             login(request, form.save())
-            return redirect("/")
+            if request.user.is_authenticated:
+                entries = TodoEntry.objects.filter(user=request.user)
+        else:
+            entries = 0
+        return render(request, 'index.html', {'entries': entries})
     else:
         form = UserCreationForm()
     return render(request,"register.html", {"form" : form})
@@ -48,7 +61,11 @@ def login_view(request):
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            return redirect("/")
+            if request.user.is_authenticated:
+                entries = TodoEntry.objects.filter(user=request.user)
+        else:
+            entries = 0
+        return render(request, 'index.html', {'entries': entries})
 
     else:
         form = AuthenticationForm()
