@@ -46,30 +46,22 @@ def register_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            login(request, form.save())
-            if request.user.is_authenticated:
-                entries = TodoEntry.objects.filter(user=request.user)
-        else:
-            entries = 0
-        return render(request, 'index.html', {'entries': entries})
+            user = form.save()
+            login(request, user)
+            return redirect('index')
     else:
         form = UserCreationForm()
-    return render(request,"register.html", {"form" : form})
+    return render(request, "register.html", {"form": form})
 
 def login_view(request):
     if request.method == "POST":
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             login(request, form.get_user())
-            if request.user.is_authenticated:
-                entries = TodoEntry.objects.filter(user=request.user)
-        else:
-            entries = 0
-        return render(request, 'index.html', {'entries': entries})
-
+            return redirect('index')
     else:
         form = AuthenticationForm()
-    return render(request,"login.html", {"form" : form})
+    return render(request, "login.html", {"form": form})
 
 def logout_view(request):
     logout(request)
