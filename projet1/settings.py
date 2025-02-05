@@ -53,6 +53,26 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+"""CSRF_TRUSTED_ORIGINS = [
+    'https://chrome-extension://gmmkjpcadciiokjpikmkkmapphbmdjok'
+],
+ALLOWED_HOSTS = [
+    'chrome-extension://gmmkjpcadciiokjpikmkkmapphbmdjok',
+],
+CORS_ORIGIN_WHITELIST = [
+    'chrome-extension://gmmkjpcadciiokjpikmkkmapphbmdjok',
+]"""
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'projet1.api.authentication.CustomTokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
 ROOT_URLCONF = 'projet1.urls'
 
 TEMPLATES = [
