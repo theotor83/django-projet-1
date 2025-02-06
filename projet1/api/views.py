@@ -60,7 +60,7 @@ def manage_token(request):
 def test_auth(request):
     return Response({'userid': request.user.id})
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @authentication_classes([CustomTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def entries(request, userid):
@@ -72,3 +72,15 @@ def entries(request, userid):
             return JsonResponse({"entries" : serializer.data}, status=200)
         else:
             return JsonResponse({'error': '403 Unauthorized'}, status=403)
+    if request.method == 'POST':
+        if request.user.id == userid or request.user.id == 1 : #1 = admin
+            userid = get_object_or_404(User, pk=userid)
+            serializer = EntrySerializer(data=request.data, context={'request': request})
+            if serializer.is_valid():
+                # Associate the entry with the user from the URL
+                serializer.save(user=userid)
+                return JsonResponse(serializer.data, status=201)
+            # Return errors if data is invalid.
+            return JsonResponse(serializer.errors, status=400)
+        else:
+            return JsonResponse({'error': '403 Forbidden'}, status=403)

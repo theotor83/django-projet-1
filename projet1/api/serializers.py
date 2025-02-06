@@ -6,3 +6,8 @@ class EntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = TodoEntry
         fields = ["id","user","name","dateCreated","completed"]
+        extra_kwargs = {
+            'user': {'required': False},
+            'dateCreated': {'required': False},
+            'completed': {'required': False},
+        }
