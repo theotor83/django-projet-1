@@ -50,14 +50,14 @@ def manage_token(request):
 def test_auth(request):
     return Response({'userid': request.user.id})
 
-@api_view(['GET', 'POST'])
+@api_view(['GET', 'POST', 'PUT'])
 @authentication_classes([CustomTokenAuthentication])
 @permission_classes([IsAuthenticated])
-def entries(request, requestedUserId = None):
+def entries(request, requestedUserId = None, requestedEntryId = None):
 
-    if requestedUserId == None: #if /api/entries/ instead of /api/entries/<id>
+    if requestedUserId == None: #/api/entries/
         if request.method == 'GET':
-            if request.user.id == 1: #admin
+            if request.user.is_superuser:
                 allEntries = TodoEntry.objects.all()
                 serializer = EntrySerializer(allEntries, many=True)
                 return JsonResponse({"entries" : serializer.data}, status=200)
@@ -65,21 +65,47 @@ def entries(request, requestedUserId = None):
                 return Response({'error': '403 Unauthorized'}, status=403)
             
     else:
-        if request.method == 'GET':
-            if request.user.id == requestedUserId or request.user.id == 1 : #1 = admin
-                requestedUserId = get_object_or_404(User, pk=requestedUserId)
-                entries = TodoEntry.objects.filter(user=requestedUserId)
-                serializer = EntrySerializer(entries, many=True)
-                return JsonResponse({"entries" : serializer.data}, status=200)
-            else:
-                return JsonResponse({'error': '403 Unauthorized'}, status=403)
-        if request.method == 'POST':
-            if request.user.id == requestedUserId or request.user.id == 1 : #1 = admin
-                requestedUserId = get_object_or_404(User, pk=requestedUserId)
-                serializer = EntrySerializer(data=request.data, context={'request': request})
-                if serializer.is_valid():
-                    serializer.save(user=requestedUserId)
-                    return JsonResponse(serializer.data, status=201)
-                return JsonResponse(serializer.errors, status=400)
-            else:
-                return JsonResponse({'error': '403 Unauthorized'}, status=403)
+        if requestedEntryId == None:  #/api/entries/<userid>/
+
+            if request.method == 'GET':
+                if request.user.id == requestedUserId or request.user.is_superuser:
+                    requestedUserId = get_object_or_404(User, pk=requestedUserId)
+                    entries = TodoEntry.objects.filter(user=requestedUserId)
+                    serializer = EntrySerializer(entries, many=True)
+                    return JsonResponse({"entries" : serializer.data}, status=200)
+                else:
+                    return JsonResponse({'error': '403 Unauthorized'}, status=403)
+                
+            if request.method == 'POST':
+                if request.user.id == requestedUserId or request.user.is_superuser:
+                    requestedUserId = get_object_or_404(User, pk=requestedUserId)
+                    serializer = EntrySerializer(data=request.data, context={'request': request})
+                    if serializer.is_valid():
+                        serializer.save(user=requestedUserId)
+                        return JsonResponse(serializer.data, status=201)
+                    return JsonResponse(serializer.errors, status=400)
+                else:
+                    return JsonResponse({'error': '403 Unauthorized'}, status=403)
+                
+
+        else: #/api/entries/<userid>/<entryid>
+
+            if request.method == 'GET':
+                if request.user.id == requestedUserId or request.user.is_superuser:
+                    entry = get_object_or_404(TodoEntry, user=requestedUserId, entryid=requestedEntryId)
+                    serializer = EntrySerializer(entry)
+                    return JsonResponse(serializer.data, status=200)
+                else:
+                    return JsonResponse({'error': '403 Unauthorized'}, status=403)
+            
+            if request.method == 'PUT':
+                if request.user.id == requestedUserId or request.user.is_superuser:
+                    entry = get_object_or_404(TodoEntry, user=requestedUserId, entryid=requestedEntryId)
+                    serializer = EntrySerializer(entry, data=request.data, context={'request': request})
+                    if serializer.is_valid():
+                        serializer.save()
+                        return JsonResponse(serializer.data, status=200)
+                    else:
+                        return JsonResponse(serializer.errors, status=400)
+                else:
+                    return JsonResponse({'error': '403 Unauthorized'}, status=403)
