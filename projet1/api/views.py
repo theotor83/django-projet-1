@@ -64,6 +64,14 @@ def entries(request, requestedUserId = None, requestedEntryId = None):
             else:
                 return Response({'error': '403 Unauthorized'}, status=403)
             
+    if request.method == 'POST':
+        requestedUserId = get_object_or_404(User, pk=request.user.id)
+        serializer = EntrySerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(user=requestedUserId)
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+            
     else:
         if requestedEntryId == None:  #/api/entries/<userid>/
 
