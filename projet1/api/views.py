@@ -50,7 +50,7 @@ def manage_token(request):
 def test_auth(request):
     return Response({'userid': request.user.id})
 
-@api_view(['GET', 'POST', 'PUT'])
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @authentication_classes([CustomTokenAuthentication])
 @permission_classes([IsAuthenticated])
 def entries(request, requestedUserId = None, requestedEntryId = None):
@@ -107,5 +107,13 @@ def entries(request, requestedUserId = None, requestedEntryId = None):
                         return JsonResponse(serializer.data, status=200)
                     else:
                         return JsonResponse(serializer.errors, status=400)
+                else:
+                    return JsonResponse({'error': '403 Unauthorized'}, status=403)
+            
+            if request.method == 'DELETE':
+                if request.user.id == requestedUserId or request.user.is_superuser:
+                    entry = get_object_or_404(TodoEntry, user=requestedUserId, entryid=requestedEntryId)
+                    entry.delete()
+                    return Response(status=204)
                 else:
                     return JsonResponse({'error': '403 Unauthorized'}, status=403)
